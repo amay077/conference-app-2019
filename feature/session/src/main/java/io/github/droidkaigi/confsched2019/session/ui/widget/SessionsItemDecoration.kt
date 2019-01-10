@@ -7,11 +7,15 @@ import android.graphics.Color
 import android.graphics.Paint
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.soywiz.klock.DateTime
+import com.soywiz.klock.DateTimeSpan
+import com.soywiz.klock.TimeSpan
 import com.xwray.groupie.GroupAdapter
 import io.github.droidkaigi.confsched2019.session.R
 import io.github.droidkaigi.confsched2019.session.ui.item.SessionItem
 import io.github.droidkaigi.confsched2019.timber.debug
 import timber.log.Timber
+import java.util.*
 
 class SessionsItemDecoration(
     val context: Context,
@@ -71,12 +75,17 @@ class SessionsItemDecoration(
         }
     }
 
+    private val displayTimezoneOffset = lazy {
+        DateTimeSpan(hours = 9) // FIXME Get from device setting
+    }
+
     private fun getSessionTime(position: Int): String? {
         if (position < 0 || position >= groupAdapter.itemCount) {
             return null
         }
 
         val item = groupAdapter.getItem(position) as? SessionItem ?: return null
-        return item.session.startTime.toString("HH:mm")
+        return item.session.startTime
+            .plus(displayTimezoneOffset.value).toString("HH:mm")
     }
 }
